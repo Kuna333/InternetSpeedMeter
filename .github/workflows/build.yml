@@ -24,15 +24,11 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: gradle
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: |
-            platforms;android-34
-            build-tools;34.0.0
-            platform-tools
+          packages: 'platform-tools platforms;android-34 build-tools;34.0.0'
 
       - name: Grant execute permission
         run: chmod +x gradlew
@@ -42,7 +38,10 @@ jobs:
 
       - name: Verify APK permissions
         run: |
-          $ANDROID_HOME/build-tools/34.0.0/aapt dump permissions app/build/outputs/apk/debug/app-debug.apk | tee permissions.txt
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          AAPT="$ANDROID_HOME/build-tools/34.0.0/aapt"
+
+          $AAPT dump permissions "$APK" | tee permissions.txt
 
           if grep -q "android.permission.INTERNET" permissions.txt; then
             echo "ERROR: INTERNET permission found!"
@@ -50,8 +49,6 @@ jobs:
           else
             echo "Privacy check passed: No INTERNET permission"
           fi
-
-          cat permissions.txt
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
