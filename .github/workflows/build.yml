@@ -36,6 +36,13 @@ jobs:
         with:
           packages: 'platform-tools platforms;android-34 build-tools;34.0.0'
 
+      - name: Increase Gradle memory
+        run: |
+          sed -i 's/^org.gradle.jvmargs=.*/org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8/' gradle.properties
+
+          echo "Updated Gradle memory settings:"
+          grep org.gradle.jvmargs gradle.properties
+
       - name: Build Debug APK
         run: gradle assembleDebug --stacktrace
 
